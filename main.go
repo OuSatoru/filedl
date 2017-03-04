@@ -2,16 +2,23 @@ package main
 
 import (
 	"fmt"
-	"github.com/boombuler/barcode"
-	"github.com/boombuler/barcode/qr"
 	"image/png"
 	"net/http"
 	"os"
 	"strings"
+	"html/template"
+	"github.com/boombuler/barcode/qr"
+	"github.com/boombuler/barcode"
 )
 
-func main() {
+type anApk struct {
+	title string
+	icon string
+	qrCode string
+}
 
+func main() {
+	http.HandleFunc("/apk", apk)
 	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("www/static"))))
 	http.ListenAndServe(":2333", nil)
 }
@@ -29,4 +36,10 @@ func qrGen(s string) {
 		panic(err)
 	}
 	png.Encode(f, qrCode)
+}
+
+func apk(w http.ResponseWriter, r *http.Request) {
+	fmt.Println(r.URL.Path)
+	t, _ := template.ParseFiles("www/template/apks.html")
+	t.Execute(w, nil)
 }
